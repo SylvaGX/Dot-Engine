@@ -44,16 +44,16 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(DotEngine/vendor/GLFW)
+find_package(glfw3 REQUIRED)
 
-# GLM - header only, no need to build
-add_subdirectory(DotEngine/vendor/glm)
+# GLM
+find_package(glm REQUIRED)
 
 # spdlog
 set(SPDLOG_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(SPDLOG_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(SPDLOG_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(DotEngine/vendor/spdlog)
+find_package(spdlog REQUIRED)
 
 # Glad
 add_subdirectory(DotEngine/vendor/Glad)

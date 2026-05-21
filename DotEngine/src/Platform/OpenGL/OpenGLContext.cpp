@@ -15,13 +15,13 @@ namespace DotEngine {
 	void OpenGLContext::Init()
 	{
 		glfwMakeContextCurrent(m_WindowHandle);
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 		DOTENGINE_CORE_ASSERT(status, "Failed to initialize Glad!");
 
 		DOTENGINE_CORE_INFO("OpenGL Info:");
-		DOTENGINE_CORE_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
-		DOTENGINE_CORE_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
-		DOTENGINE_CORE_INFO("  Version: {0}", glGetString(GL_VERSION));
+		DOTENGINE_CORE_INFO("  Vendor: {0}", reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+		DOTENGINE_CORE_INFO("  Renderer: {0}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+		DOTENGINE_CORE_INFO("  Version: {0}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 	}
 
 	void OpenGLContext::SwapBuffers()

@@ -87,12 +87,9 @@ target_precompile_headers(DotEngine PRIVATE src/detpch.h)
 # Include directories
 target_include_directories(DotEngine PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/spdlog/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Glad/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm
 )
 
 # Link libraries
@@ -100,8 +97,8 @@ target_link_libraries(DotEngine PUBLIC
     glfw
     Glad
     ImGui
-    glm
-    spdlog
+    glm::glm
+    spdlog::spdlog
 )
 
 # Platform-specific definitions and libraries
