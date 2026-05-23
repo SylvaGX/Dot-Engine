@@ -4,4 +4,3 @@
 requirements:
   - "spdlog/1.17.0"
   - "glm/1.0.1"
-  - "glfw/3.3.8"

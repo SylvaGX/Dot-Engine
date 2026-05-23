@@ -1,3 +1,6 @@
 [submodule "DotEngine/vendor/imgui"]
 	path = DotEngine/vendor/imgui
 	url = https://github.com/TheCherno/imgui
+[submodule "DotEngine/vendor/glfw"]
+	path = DotEngine/vendor/glfw
+	url = https://github.com/TheCherno/glfw.git

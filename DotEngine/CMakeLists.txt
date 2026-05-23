@@ -90,6 +90,7 @@ target_include_directories(DotEngine PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Glad/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw
 )
 
 # Link libraries
