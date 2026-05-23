@@ -18,7 +18,7 @@ namespace DotEngine {
 			: Title(title), Width(width), Height(height) {}
 	};
 
-	// Interface representing a desktop system based Window
+	// Interface representing a desktop system-based Window
 	class DOTENGINE_API Window {
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;

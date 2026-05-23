@@ -1,5 +1,5 @@
 #include "detpch.h"
-#include "WindowsWindow.h"
+#include "WindowsMac.h"
 
 #include "DotEngine/Events/ApplicationEvent.h"
 #include "DotEngine/Events/MouseEvent.h"
@@ -16,18 +16,18 @@ namespace DotEngine {
 	}
 
 	Window* Window::Create(const WindowProps& props) {
-		return new WindowsWindow(props);
+		return new WindowsMac(props);
 	}
 
-	WindowsWindow::WindowsWindow(const WindowProps& props) {
-		WindowsWindow::Init(props);
+	WindowsMac::WindowsMac(const WindowProps& props) {
+		WindowsMac::Init(props);
 	}
 
-	WindowsWindow::~WindowsWindow() {
-		WindowsWindow::Shutdown();
+	WindowsMac::~WindowsMac() {
+		WindowsMac::Shutdown();
 	}
 
-	void WindowsWindow::Init(const WindowProps& props) {
+	void WindowsMac::Init(const WindowProps& props) {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
@@ -130,16 +130,16 @@ namespace DotEngine {
 		});
 	}
 
-	void WindowsWindow::Shutdown() {
+	void WindowsMac::Shutdown() {
 		glfwDestroyWindow(m_Window);
 	}
 
-	void WindowsWindow::OnUpdate() {
+	void WindowsMac::OnUpdate() {
 		glfwPollEvents();
 		m_Context->SwapBuffers();
 	}
 
-	void WindowsWindow::SetVSync(bool enabled) {
+	void WindowsMac::SetVSync(bool enabled) {
 		if (enabled) 
 			glfwSwapInterval(1);
 		else
@@ -148,7 +148,7 @@ namespace DotEngine {
 		m_Data.VSync = enabled;
 	}
 
-	bool WindowsWindow::IsVSync() const {
+	bool WindowsMac::IsVSync() const {
 		return m_Data.VSync;
 	}
 

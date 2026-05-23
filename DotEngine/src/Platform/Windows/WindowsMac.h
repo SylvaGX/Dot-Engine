@@ -7,10 +7,10 @@
 
 namespace DotEngine {
 
-	class WindowsWindow : public Window{
+	class WindowsMac : public Window{
 	public:
-		WindowsWindow(const WindowProps& props);
-		virtual ~WindowsWindow();
+		WindowsMac(const WindowProps& props);
+		virtual ~WindowsMac();
 
 		void OnUpdate() override;
 

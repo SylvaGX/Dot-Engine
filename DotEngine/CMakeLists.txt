@@ -65,8 +65,8 @@ elseif(APPLE)
     list(APPEND DOTENGINE_SOURCES
         src/Platform/Windows/WindowsInput.cpp
         src/Platform/Windows/WindowsInput.h
-        src/Platform/Windows/WindowsWindow.cpp
-        src/Platform/Windows/WindowsWindow.h
+        src/Platform/Windows/WindowsMac.cpp
+        src/Platform/Windows/WindowsMac.h
     )
 elseif(UNIX)
     # On Linux, we'll use the Windows implementation for now
@@ -108,32 +108,45 @@ if(WIN32)
         DOTENGINE_PLATFORM_WINDOWS
         GLFW_INCLUDE_NONE
     )
+
     # Link OpenGL on Windows
     target_link_libraries(DotEngine PUBLIC opengl32)
+
 elseif(APPLE)
     target_compile_definitions(DotEngine PUBLIC
         DOTENGINE_PLATFORM_MACOS
         GLFW_INCLUDE_NONE
+        GLFW_EXPOSE_NATIVE_COCOA
     )
+
     # Link OpenGL framework on macOS
-    find_library(OPENGL_LIBRARY OpenGL REQUIRED)
-    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    find_library(METAL_LIBRARY Metal REQUIRED)
+    find_library(METALKIT_LIBRARY MetalKit REQUIRED)
+    #find_library(APPKIT_LIBRARY AppKit REQUIRED)
+    #find_library(FOUNDATION_LIBRARY Foundation REQUIRED)
     find_library(IOKIT_LIBRARY IOKit REQUIRED)
-    find_library(COREVIDEO_LIBRARY CoreVideo REQUIRED)
+
+
     target_link_libraries(DotEngine PUBLIC
-        ${OPENGL_LIBRARY}
-        ${COCOA_LIBRARY}
+        ${METAL_LIBRARY}
+        ${METALKIT_LIBRARY}
+        #${APPKIT_LIBRARY}
+        #${FOUNDATION_LIBRARY}
         ${IOKIT_LIBRARY}
-        ${COREVIDEO_LIBRARY}
     )
 elseif(UNIX)
     target_compile_definitions(DotEngine PUBLIC
         DOTENGINE_PLATFORM_LINUX
         GLFW_INCLUDE_NONE
     )
+
     # Link OpenGL on Linux
     find_package(OpenGL REQUIRED)
-    target_link_libraries(DotEngine PUBLIC OpenGL::GL ${CMAKE_DL_LIBS})
+
+    target_link_libraries(DotEngine PUBLIC
+        OpenGL::GL
+        ${CMAKE_DL_LIBS}
+    )
 endif()
 
 # Compiler-specific settings
