@@ -24,6 +24,12 @@ namespace DotEngine {
 			case RendererAPI::OpenGL: {
 				return new OpenGLVertexBuffer(vertices, size);
 			}
+			case RendererAPI::Metal:
+			{
+				DOTENGINE_CORE_ASSERT(false, "RendererAPI::Metal is currently in develop!");
+				return nullptr;
+				//return new MetalVertexBuffer(vertices, size);
+			}
 		}
 		
 		DOTENGINE_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -41,13 +47,17 @@ namespace DotEngine {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::None: {
-			DOTENGINE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
-			return nullptr;
-		}
-		case RendererAPI::OpenGL: {
-			return new OpenGLIndexBuffer(indices, size);
-		}
+			case RendererAPI::None: {
+				DOTENGINE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
+				return nullptr;
+			}
+			case RendererAPI::OpenGL: {
+				return new OpenGLIndexBuffer(indices, size);
+			}
+			case RendererAPI::Metal:
+			{
+				return nullptr;
+			}
 		}
 
 		DOTENGINE_CORE_ASSERT(false, "Unknown RendererAPI!");

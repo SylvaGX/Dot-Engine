@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
-project(ImGui LANGUAGES CXX)
+
+if(APPLE)
+    project(ImGui LANGUAGES CXX OBJCXX)
+else()
+    project(ImGui LANGUAGES CXX)
+endif()
 
 # Reference the imgui submodule directory
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../imgui)
@@ -76,7 +81,7 @@ if(RUN_IMGUI_FIX)
     endif()
 endif()
 
-add_library(ImGui STATIC
+set(IMGUI_SOURCES
     ${IMGUI_DIR}/imconfig.h
     ${IMGUI_DIR}/imgui.h
     ${IMGUI_DIR}/imgui.cpp
@@ -88,16 +93,44 @@ add_library(ImGui STATIC
     ${IMGUI_DIR}/imstb_rectpack.h
     ${IMGUI_DIR}/imstb_textedit.h
     ${IMGUI_DIR}/imstb_truetype.h
-    # Backends are NOT compiled here - they're included directly in ImGuiLayer.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
 )
+
+if(APPLE)
+    list(APPEND IMGUI_SOURCES
+        ${IMGUI_DIR}/backends/imgui_impl_metal.mm
+    )
+else()
+    list(APPEND IMGUI_SOURCES
+        ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+    )
+endif()
+
+add_library(ImGui STATIC ${IMGUI_SOURCES})
 
 target_include_directories(ImGui PUBLIC
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
 )
 
-# Position independent code for Linux
-if(UNIX AND NOT APPLE)
+target_compile_definitions(ImGui PUBLIC GLFW_INCLUDE_NONE)
+
+target_link_libraries(ImGui PUBLIC glfw)
+
+if(APPLE)
+    target_compile_definitions(ImGui PUBLIC GLFW_EXPOSE_NATIVE_COCOA)
+
+    if(NOT TARGET MetalCPP)
+        message(FATAL_ERROR "MetalCPP target not found. Add DotEngine/vendor/metal-cpp before imgui_cmake on macOS.")
+    endif()
+
+    # Private: compile imgui_impl_metal.mm only; engine links MetalCPP directly
+    target_link_libraries(ImGui PRIVATE MetalCPP)
+elseif(WIN32)
+    target_link_libraries(ImGui PUBLIC opengl32)
+elseif(UNIX)
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(ImGui PUBLIC OpenGL::GL)
     set_target_properties(ImGui PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 

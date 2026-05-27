@@ -23,7 +23,7 @@ endif()
 if(WIN32)
     add_compile_definitions(DOTENGINE_PLATFORM_WINDOWS)
 elseif(APPLE)
-    add_compile_definitions(DOTENGINE_PLATFORM_MACOS)
+    add_compile_definitions(DOTENGINE_PLATFORM_MACOS IMGUI_IMPL_METAL_CPP)
 elseif(UNIX)
     add_compile_definitions(DOTENGINE_PLATFORM_LINUX)
 endif()
@@ -57,6 +57,11 @@ find_package(spdlog REQUIRED)
 
 # Glad
 add_subdirectory(DotEngine/vendor/Glad)
+
+# Metal-CPP (engine dependency; must be available before ImGui Metal backend builds)
+if(APPLE)
+    add_subdirectory(DotEngine/vendor/metal-cpp)
+endif()
 
 # ImGui (using wrapper CMakeLists to avoid modifying submodule)
 add_subdirectory(DotEngine/vendor/imgui_cmake)

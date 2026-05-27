@@ -4,3 +4,6 @@
 [submodule "DotEngine/vendor/glfw"]
 	path = DotEngine/vendor/glfw
 	url = https://github.com/TheCherno/glfw.git
+[submodule "DotEngine/vendor/metal-cpp"]
+	path = DotEngine/vendor/metal-cpp
+	url = https://github.com/SylvaGX/Metal-CPP.git

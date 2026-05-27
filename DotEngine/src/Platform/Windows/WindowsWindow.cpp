@@ -140,6 +140,8 @@ namespace DotEngine {
 	}
 
 	void WindowsWindow::SetVSync(bool enabled) {
+
+		// glfwSwapInterval is OpenGL/OpenGL ES specific
 		if (enabled) 
 			glfwSwapInterval(1);
 		else

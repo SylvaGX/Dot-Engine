@@ -10,18 +10,19 @@ namespace DotEngine {
 	class WindowsWindow : public Window{
 	public:
 		WindowsWindow(const WindowProps& props);
-		virtual ~WindowsWindow();
+		~WindowsWindow() override;
 
 		void OnUpdate() override;
 
-		inline uint32_t GetWidth() const override { return m_Data.Width; }
-		inline uint32_t GetHeight() const override { return m_Data.Height; }
+		uint32_t GetWidth() const override { return m_Data.Width; }
+		uint32_t GetHeight() const override { return m_Data.Height; }
 
 		// Window attribute
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+		void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
-		inline virtual void* GetNativeWindow() const override { return m_Window; }
+		void* GetNativeWindow() const override { return m_Window; }
+		GraphicsContext* GetGraphicsContext() const override { return m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();

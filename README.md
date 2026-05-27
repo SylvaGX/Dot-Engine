@@ -67,7 +67,7 @@ cmake --build . -j$(sysctl -n hw.ncpu)
 
 1. **Open CLion**
 2. **Settings** → **Build, Execution, Deployment** → **CMake**
-3. In **CMake options** field, add: `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`
+3. In **CMake options** field, add: `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` and `-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES="conan_provider.cmake"`
 4. **File → Open** and select the DotEngine project directory
 5. CLion will automatically detect CMake and start configuring
 6. Select **Sandbox** from the run configurations dropdown (top-right)
@@ -88,7 +88,7 @@ cmake --build . -j$(sysctl -n hw.ncpu)
 
 1. **Settings/Preferences** → **Build, Execution, Deployment** → **CMake**
 2. You should see a **Debug** profile by default
-3. Add the CMake option as mentioned above: `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`
+3. Add the CMake option as mentioned above: `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` and `-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES="conan_provider.cmake"`
 
 **Optional:** Add more build configurations:
 
@@ -125,8 +125,7 @@ Before building in CLion, make sure you've completed:
 - [ ] Checked out `main` branch
 - [ ] Initialized submodules: `git submodule update --init --recursive`
 - [ ] Applied imgui bug fix: Can do manually by running `./scripts/setup-imgui.sh` or reloading CMake. In case reloading CMake didn't work delete file `DotEngine/vendor/imgui_cmake/imgui_dc_fix.hash` and reload CMake again
-- [ ] Added CMake option in CLion: `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`
-- [ ] Added CMake option in CLion if conan needed: - `-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES="conan_provider.cmake"`
+- [ ] Added CMake option in CLion: `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` and `-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES="conan_provider.cmake"`
 
 ### CMake 3.27+ Compatibility Issue
 
@@ -145,6 +144,7 @@ This happens because GLFW and GLM submodules use older `cmake_minimum_required` 
 3. In the **CMake options** field, add:
    ```
    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+   -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES="conan_provider.cmake"
    ```
 4. Click **Apply** and **OK**
 5. CLion will automatically reload the CMake project
@@ -182,7 +182,7 @@ If you prefer terminal over CLion:
 
 ```bash
 # Configure
-cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Debug -B build
+cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES="conan_provider.cmake" -DCMAKE_BUILD_TYPE=Debug -B build
 
 # Build
 cmake --build build -j$(sysctl -n hw.ncpu)

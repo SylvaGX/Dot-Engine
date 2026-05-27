@@ -6,9 +6,10 @@ namespace DotEngine {
 
 	class DOTENGINE_API Input {
 	public:
-		inline static bool IsKeyPressed(int keycode) { return s_Instance->IsKeyPressedImpl(keycode); }
+		virtual ~Input() = default;
+		inline static bool IsKeyPressed(const int keycode) { return s_Instance->IsKeyPressedImpl(keycode); }
 
-		inline static bool IsMouseButtonPressed(int button) { return s_Instance->IsMouseButtonPressedImpl(button); }
+		inline static bool IsMouseButtonPressed(const int button) { return s_Instance->IsMouseButtonPressedImpl(button); }
 		inline static std::pair<float,float> GetMousePos() { return s_Instance->GetMousePosImpl(); }
 		inline static float GetMouseX() { return s_Instance->GetMouseXImpl(); }
 		inline static float GetMouseY() { return s_Instance->GetMouseYImpl(); }

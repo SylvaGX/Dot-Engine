@@ -4,7 +4,7 @@
 #include <format>
 #include <string>
 
-#ifdef DOTENGINE_PLATFORM_WINDOWS
+#if defined(DOTENGINE_PLATFORM_WINDOWS) || defined(DOTENGINE_PLATFORM_MACOS)
 
 extern DotEngine::Application* DotEngine::createApplication();
 
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-#elif defined(DOTENGINE_PLATFORM_MACOS) || defined(DOTENGINE_PLATFORM_LINUX)
+#elif defined(DOTENGINE_PLATFORM_LINUX)
 
 int main(int argc, char** argv) {
 

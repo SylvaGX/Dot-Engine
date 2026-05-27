@@ -5,6 +5,8 @@
 
 #include <glad/glad.h>
 
+#include <memory>
+
 #include "Input.h"
 
 namespace DotEngine {
@@ -42,6 +44,8 @@ namespace DotEngine {
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 
+#if DOTENGINE_PLATFORM_WINDOWS
+
 		glGenVertexArrays(1, &m_VertexArray);
 		glBindVertexArray(m_VertexArray);
 
@@ -67,11 +71,11 @@ namespace DotEngine {
 		for (const auto& element : layout) {
 			glEnableVertexAttribArray(index);
 			glVertexAttribPointer(index, 
-				element.GetComponentCount(), 
+				static_cast<int>(element.GetComponentCount()),
 				ShaderDataTypeToOpenGLBaseType(element.Type), 
 				element.Normalized ? GL_TRUE : GL_FALSE, 
-				layout.GetStride(),
-				(const void*)element.Offset);
+				static_cast<int>(layout.GetStride()),
+				reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset)));
 			index++;
 		}
 
@@ -81,7 +85,7 @@ namespace DotEngine {
 
 		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
-		std::string vertexSrc = R"(
+		const std::string vertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
@@ -98,7 +102,7 @@ namespace DotEngine {
 
 		)";
 
-		std::string fragmentSrc = R"(
+		const std::string fragmentSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) out vec4 color;
@@ -113,7 +117,8 @@ namespace DotEngine {
 
 		)";
 
-		m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
+		m_Shader = std::make_unique<Shader>(vertexSrc, fragmentSrc);
+#endif
 	}
 
 	Application::~Application() {
@@ -123,13 +128,14 @@ namespace DotEngine {
 	void Application::Run() {
 
 		while (m_Running) {
+#if DOTENGINE_PLATFORM_WINDOWS
 			glClearColor(0.1f, 0.1f, 0.1f, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			m_Shader->Bind();
 			glBindVertexArray(m_VertexArray);
 			glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
-
+#endif
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 

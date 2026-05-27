@@ -25,11 +25,11 @@ namespace DotEngine {
 #define DOTENGINE_CORE_INFO(...)     ::DotEngine::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define DOTENGINE_CORE_WARN(...)     ::DotEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define DOTENGINE_CORE_ERROR(...)    ::DotEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define DOTENGINE_CORE_FATAL(...)    ::DotEngine::Log::GetCoreLogger()->fatal(__VA_ARGS__)
+#define DOTENGINE_CORE_CRITICAL(...)    ::DotEngine::Log::GetCoreLogger()->critical(__VA_ARGS__)
 
 // Client log macros
 #define DOTENGINE_TRACE(...)    ::DotEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
 #define DOTENGINE_INFO(...)     ::DotEngine::Log::GetClientLogger()->info(__VA_ARGS__)
 #define DOTENGINE_WARN(...)     ::DotEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define DOTENGINE_ERROR(...)    ::DotEngine::Log::GetClientLogger()->error(__VA_ARGS__)
-#define DOTENGINE_FATAL(...)    ::DotEngine::Log::GetClientLogger()->fatal(__VA_ARGS__)
+#define DOTENGINE_CRITICAL(...)    ::DotEngine::Log::GetClientLogger()->critical(__VA_ARGS__)

@@ -6,7 +6,7 @@
 
 namespace DotEngine {
 
-	class WindowsInput : public Input {
+	class MacInput : public Input {
 	protected:
 		bool IsKeyPressedImpl(int keycode) override;
 

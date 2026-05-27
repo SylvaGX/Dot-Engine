@@ -26,6 +26,7 @@ namespace DotEngine {
 
 	void OpenGLContext::SwapBuffers()
 	{
+		// Specific function for OpenGL & OpenGL ES
 		glfwSwapBuffers(m_WindowHandle);
 	}
 

@@ -31,7 +31,6 @@ set(DOTENGINE_SOURCES
         src/DotEngine/Events/MouseEvent.h
     
     # ImGui integration
-        src/DotEngine/ImGui/ImGuiBuild.cpp
         src/DotEngine/ImGui/ImGuiLayer.cpp
         src/DotEngine/ImGui/ImGuiLayer.h
     
@@ -49,6 +48,10 @@ set(DOTENGINE_SOURCES
     src/Platform/OpenGL/OpenGLBuffer.h
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLContext.h
+
+    # Platform - Metal
+    src/Platform/Metal/MetalContext.cpp
+    src/Platform/Metal/MetalContext.h
 )
 
 # Platform-specific sources
@@ -63,10 +66,12 @@ elseif(APPLE)
     # On macOS, we'll use the Windows implementation for now
     # You may want to create macOS-specific implementations later
     list(APPEND DOTENGINE_SOURCES
-        src/Platform/Windows/WindowsInput.cpp
-        src/Platform/Windows/WindowsInput.h
-        src/Platform/Windows/WindowsMac.cpp
-        src/Platform/Windows/WindowsMac.h
+        src/Platform/Mac/MacInput.cpp
+        src/Platform/Mac/MacInput.h
+        src/Platform/Mac/MacWindow.cpp
+        src/Platform/Mac/MacWindow.h
+
+        src/Platform/Metal/MetalImplementations.cpp
     )
 elseif(UNIX)
     # On Linux, we'll use the Windows implementation for now
@@ -119,21 +124,7 @@ elseif(APPLE)
         GLFW_EXPOSE_NATIVE_COCOA
     )
 
-    # Link OpenGL framework on macOS
-    find_library(METAL_LIBRARY Metal REQUIRED)
-    find_library(METALKIT_LIBRARY MetalKit REQUIRED)
-    #find_library(APPKIT_LIBRARY AppKit REQUIRED)
-    #find_library(FOUNDATION_LIBRARY Foundation REQUIRED)
-    find_library(IOKIT_LIBRARY IOKit REQUIRED)
-
-
-    target_link_libraries(DotEngine PUBLIC
-        ${METAL_LIBRARY}
-        ${METALKIT_LIBRARY}
-        #${APPKIT_LIBRARY}
-        #${FOUNDATION_LIBRARY}
-        ${IOKIT_LIBRARY}
-    )
+    target_link_libraries(DotEngine PUBLIC MetalCPP)
 elseif(UNIX)
     target_compile_definitions(DotEngine PUBLIC
         DOTENGINE_PLATFORM_LINUX
@@ -157,4 +148,4 @@ else()
 endif()
 
 # C++ standard
-target_compile_features(DotEngine PUBLIC cxx_std_20)
+target_compile_features(DotEngine PUBLIC cxx_std_23)

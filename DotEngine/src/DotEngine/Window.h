@@ -7,6 +7,8 @@
 
 namespace DotEngine {
 
+	class GraphicsContext;
+
 	struct WindowProps {
 		std::string Title;
 		uint32_t Width;
@@ -30,6 +32,7 @@ namespace DotEngine {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 		virtual void* GetNativeWindow() const = 0;
+		virtual GraphicsContext* GetGraphicsContext() const = 0;
 
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
