@@ -48,10 +48,6 @@ set(DOTENGINE_SOURCES
     src/Platform/OpenGL/OpenGLBuffer.h
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLContext.h
-
-    # Platform - Metal
-    src/Platform/Metal/MetalContext.cpp
-    src/Platform/Metal/MetalContext.h
 )
 
 # Platform-specific sources
@@ -63,13 +59,17 @@ if(WIN32)
         src/Platform/Windows/WindowsWindow.h
     )
 elseif(APPLE)
-    # On macOS, we'll use the Windows implementation for now
-    # You may want to create macOS-specific implementations later
     list(APPEND DOTENGINE_SOURCES
+
+        # Platform - Mac
         src/Platform/Mac/MacInput.cpp
         src/Platform/Mac/MacInput.h
         src/Platform/Mac/MacWindow.cpp
         src/Platform/Mac/MacWindow.h
+
+        # Platform - Metal
+        src/Platform/Metal/MetalContext.cpp
+        src/Platform/Metal/MetalContext.h
 
         src/Platform/Metal/MetalImplementations.cpp
     )

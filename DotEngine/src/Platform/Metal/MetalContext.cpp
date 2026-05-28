@@ -6,6 +6,8 @@
 
 #include "Metal.hpp"
 #include "AppKit.hpp"
+#include "MTLDevice.hpp"
+#include "MTLRenderPass.hpp"
 #include "QuartzCore/CAMetalLayer.hpp"
 
 extern "C" id glfwGetCocoaWindow(GLFWwindow* window);

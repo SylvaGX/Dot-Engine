@@ -5,15 +5,16 @@
 
 #include "backends/imgui_impl_glfw.h"
 
-#ifndef DOTENGINE_PLATFORM_MACOS
+#ifdef DOTENGINE_PLATFORM_WINDOWS
 #include "backends/imgui_impl_opengl3.h"
 #else
+#include "Platform/Metal/MetalContext.h"
 #include "imgui_impl_metal.h"
 #include "QuartzCore/CAMetalDrawable.hpp"
-#include "Platform/Metal/MetalContext.h"
 #include "MTLCommandBuffer.hpp"
 #include "MTLCommandQueue.hpp"
 #include "MTLRenderCommandEncoder.hpp"
+#include "CAMetalLayer.hpp"
 #endif
 
 #include "DotEngine/Application.h"
@@ -118,7 +119,7 @@ namespace DotEngine {
 #else
 		if (windowAPI == GraphicsAPI::Metal)
 		{
-			const auto* metalContext = static_cast<MetalContext*>(app.GetWindow().GetGraphicsContext());
+			const auto* metalContext = dynamic_cast<MetalContext*>(app.GetWindow().GetGraphicsContext());
 			const auto window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 			int framebufferWidth = 0;
