@@ -13,6 +13,8 @@ namespace DotEngine {
 
 		void Init() override;
 		void SwapBuffers() override;
+		[[nodiscard]] GraphicsAPI GetAPI() const override { return GraphicsAPI::OpenGL; }
+		[[nodiscard]] void* GetDevice() const override { return nullptr; }
 	private:
 		GLFWwindow* m_WindowHandle;
 

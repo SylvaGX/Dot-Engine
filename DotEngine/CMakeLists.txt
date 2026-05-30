@@ -42,12 +42,6 @@ set(DOTENGINE_SOURCES
         src/DotEngine/Renderer/Renderer.h
         src/DotEngine/Renderer/Shader.cpp
         src/DotEngine/Renderer/Shader.h
-    
-    # Platform - OpenGL
-    src/Platform/OpenGL/OpenGLBuffer.cpp
-    src/Platform/OpenGL/OpenGLBuffer.h
-    src/Platform/OpenGL/OpenGLContext.cpp
-    src/Platform/OpenGL/OpenGLContext.h
 )
 
 # Platform-specific sources
@@ -57,6 +51,12 @@ if(WIN32)
         src/Platform/Windows/WindowsInput.h
         src/Platform/Windows/WindowsWindow.cpp
         src/Platform/Windows/WindowsWindow.h
+
+        # Platform - OpenGL
+        src/Platform/OpenGL/OpenGLBuffer.cpp
+        src/Platform/OpenGL/OpenGLBuffer.h
+        src/Platform/OpenGL/OpenGLContext.cpp
+        src/Platform/OpenGL/OpenGLContext.h
     )
 elseif(APPLE)
     list(APPEND DOTENGINE_SOURCES
@@ -80,6 +80,12 @@ elseif(UNIX)
         src/Platform/Windows/WindowsInput.h
         src/Platform/Windows/WindowsWindow.cpp
         src/Platform/Windows/WindowsWindow.h
+
+        # Platform - OpenGL
+        src/Platform/OpenGL/OpenGLBuffer.cpp
+        src/Platform/OpenGL/OpenGLBuffer.h
+        src/Platform/OpenGL/OpenGLContext.cpp
+        src/Platform/OpenGL/OpenGLContext.h
     )
 endif()
 
