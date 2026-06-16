@@ -8,7 +8,7 @@ namespace DotEngine {
 	class DOTENGINE_API Layer
 	{
 	public:
-		Layer(const std::string& name = "Layer");
+		explicit Layer(const std::string& debug_name = "Layer");
 		virtual ~Layer();
 
 		virtual void OnAttach() {}
@@ -17,7 +17,7 @@ namespace DotEngine {
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 
-		inline const std::string& GetName() const { return m_DebugName; }
+		[[nodiscard]] const std::string& GetName() const { return m_DebugName; }
 	protected:
 		std::string m_DebugName;
 

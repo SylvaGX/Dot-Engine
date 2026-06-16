@@ -170,6 +170,11 @@ namespace DotEngine {
 		m_LayerStack.PushOverlay(layer);
 	}
 
+	Layer* Application::GetLayer(const std::string& name) const
+	{
+		return m_LayerStack.GetLayer(name);
+	}
+
 	bool Application::OnWindowClose(WindowCloseEvent& e) {
 		m_Running = false;
 		return true;

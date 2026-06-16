@@ -46,5 +46,14 @@ namespace DotEngine {
 		}
 	}
 
+	Layer* LayerStack::GetLayer(const std::string& name) const
+	{
+		for (Layer* layer : m_Layers) {
+			if (layer->GetName() == name)
+				return layer;
+		}
+		DOTENGINE_CORE_ASSERT(false, "Layer {0} not found!", name);
+		return nullptr;
+	}
 }
 

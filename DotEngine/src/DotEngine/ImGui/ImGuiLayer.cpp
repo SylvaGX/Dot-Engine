@@ -51,18 +51,25 @@ namespace DotEngine {
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
-		
+
 		ImGui::StyleColorsDark();
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			style.WindowRounding = 0.0f;
+			style.WindowRounding = 4.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
+		style.ChildRounding = 4.0f;
+		style.FrameRounding = 4.0f;
+		style.PopupRounding = 4.0f;
+		style.ScrollbarRounding = 9.0f;
+		style.GrabRounding = 3.0f;
+		style.TabRounding = 5.0f;
+
 		Application& app = Application::Get();
-		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+		auto* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		const auto windowAPI = app.GetWindow().GetGraphicsContext()->GetAPI();
 
@@ -104,7 +111,7 @@ namespace DotEngine {
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		static bool show = true;
+		static bool show = false;
 		ImGui::ShowDemoWindow(&show);
 	}
 

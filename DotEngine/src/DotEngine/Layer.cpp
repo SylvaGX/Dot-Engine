@@ -3,7 +3,7 @@
 
 namespace DotEngine {
 
-	Layer::Layer(const std::string& name) : m_DebugName(name)
+	Layer::Layer(const std::string& debug_name) : m_DebugName(debug_name)
 	{
 	}
 
