@@ -1,0 +1,26 @@
+---
+description: Design guidelines and code patterns for the Sparse-Set-Driven ECS library.
+globs: libs/ecs/**/*.hpp, libs/ecs/**/*.cpp
+---
+# Architectural Patterns: Sparse-Set-Driven ECS
+
+You are working on `ecs` (Sparse-Set-Driven ECS), a data-oriented C++ framework that balances ergonomic UX with high-performance CPU processing through a Hybrid SoA layout and System-level Sparse Set indexing.
+
+## Core Principles
+1. **Systems with Sparse Set**: Systems/code files maintain their own compact dense arrays of `EntityID` (managed via dense `std::vector` or fast hash sets). Do not use global dynamic queries based on dynamic memory archetype permutations.
+2. **Hybrid SoA Components**: Data components must be organized into a Structure of Arrays (SoA) memory layout. The compile-time metaprogramming engine (templates/macros) must expose field-level access (`std::span<float>`) for hot CPU execution paths (SIMD) and ID-based access (`get_ref(id)`) for user logic and UI editing.
+3. **Inversion of Ownership**: Logical script files are global and hold references to entity IDs. Entities never store pointers or references to systems.
+4. **No Archetypes**: It is strictly forbidden to build dynamic memory Chunk structures based on combinations of component types. Component mutations must remain O(1).
+
+## C++ Implementation Rules
+- Wrap raw IDs using strongly typed structures or leverage specific sentinel values (e.g., `0` or `std::numeric_limits<uint32_t>::max()`) to minimize storage footprint and optimize layout boundaries for missing or optional configurations.
+- Ensure all Component Storages and collections are thread-safe and avoid internal synchronization locks, allowing safe utilization via multi-threaded systems (e.g., `std::execution::par`).
+- Avoid dynamic allocations (`std::unique_ptr<Base>`, `new`, or standard resizing) inside hot `update` loops within systems. Favor compile-time template parameters and static polymorphism.
+- Use raw pointers (`T*`), continuous indices, and data spans (`std::span`) intentionally inside strictly documented performance blocks to guarantee high-speed, vectorizable SoA operations.
+
+## Expected Code Layout Example
+```cpp
+// Inversion of ownership inside the system file
+struct PlayerControllerSystem {
+    Entity player_id; // The system references the entity ID
+};

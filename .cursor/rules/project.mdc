@@ -1,0 +1,9 @@
+---
+description: Project rules
+globs: always
+---
+
+# Project rules
+
+- When creating plans if a lib is needed, try to check if it is in the conan repo. If it is, say it with a warning to add it, since the user has the conan extension installed. If it doesn't, ask the user to install it under the vendor folder.
+- Ensures that when reading files, it avoids the TOCTOU vulnerability. So it needs to do atomic operations. This could mean opening a file in appended mode, or reading and writing in a single operation. And then validating the file contents, so we know it is a trusted file.

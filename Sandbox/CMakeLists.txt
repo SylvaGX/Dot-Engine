@@ -1,44 +1,22 @@
 cmake_minimum_required(VERSION 3.16)
 project(Sandbox LANGUAGES CXX)
 
-# Source files
 set(SANDBOX_SOURCES
     src/SandBoxApp.cpp
 )
 
-# Create executable
 add_executable(Sandbox ${SANDBOX_SOURCES})
 
-# Include directories
-target_include_directories(Sandbox PRIVATE
-    ${CMAKE_SOURCE_DIR}/DotEngine/vendor/spdlog/include
-    ${CMAKE_SOURCE_DIR}/DotEngine/src
-    ${CMAKE_SOURCE_DIR}/DotEngine/vendor
-    ${CMAKE_SOURCE_DIR}/DotEngine/vendor/glm
-)
+# DotApplication brings: DotEngineCore, DotRenderer, DotUI (and all their transitive deps)
+target_link_libraries(Sandbox PRIVATE DotApplication)
 
-# Link Dot engine
-target_link_libraries(Sandbox PRIVATE
-        DotEngine
-)
-
-# Platform-specific definitions
-if(WIN32)
-    target_compile_definitions(Sandbox PRIVATE
-        DOTENGINE_PLATFORM_WINDOWS
-    )
+# Platform module brings: the platform window + input + the correct backend (OpenGL or Metal)
+if(WIN32 OR (UNIX AND NOT APPLE))
+    target_link_libraries(Sandbox PRIVATE DotPlatformWindows)
 elseif(APPLE)
-    target_compile_definitions(Sandbox PRIVATE
-        DOTENGINE_PLATFORM_MACOS
-    )
-elseif(UNIX)
-    target_compile_definitions(Sandbox PRIVATE
-        DOTENGINE_PLATFORM_LINUX
-    )
+    target_link_libraries(Sandbox PRIVATE DotPlatformMac)
 endif()
 
-# C++ standard
-target_compile_features(Sandbox PRIVATE cxx_std_17)
+target_compile_features(Sandbox PRIVATE cxx_std_23)
 
-# Set as default startup project for IDEs
 set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

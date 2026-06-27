@@ -1,0 +1,32 @@
+---
+description: Controls shader pipeline for a desktop/console graphics/game engine. Enforces platform-native dual-paths (HLSL for DX12/Vulkan, MSL for Metal) mapped to high-level Material assets.
+globs: src/renderer/**/*.hpp, src/renderer/**/*.cpp, assets/shaders/**/*
+---
+
+# Modular Shader & Native Bypass Rules
+
+## Core Shading Language Policy
+* **Dual Native Dominance:** Shaders are written directly in their primary platform-native languages to achieve maximum hardware performance. No automated cross-compilation from HLSL to MSL (or vice versa) is permitted.
+* **Windows & Linux (HLSL):** Write 100% of standard graphics, compute, physics, screen-space ray marching, and advanced primitives (Ray Tracing / Mesh Shading) in pure **HLSL** when targeting Windows and Linux.
+    * For DirectX 12, compile HLSL directly into DXIL binaries.
+    * For Vulkan, leverage a shader compiler toolchain (such as DXC) to translate the native HLSL files cleanly into SPIR-V binaries.
+* **Apple Ecosystem (MSL):** Write 100% of all shader stages in raw, hand-optimized **MSL (Metal Shading Language)** when targeting Apple devices. This ensures zero runtime overhead, native driver compliance, and direct access to Apple Silicon hardware optimizations.
+
+## Material & Multi-Shader Resource Mapping
+* **Unified Material Definition:** High-level material systems (e.g., a standard lit PBR Material) must explicitly bind and register *two* separate, underlying hardware shader resources: one native HLSL variant and one native MSL variant.
+* **Dynamic Material-to-Backend Binding:** When a Material asset is bound during execution, it does not query a single unified bytecode file. Instead, the Material acts as a polymorphic router that automatically selects and activates either the HLSL or MSL bytecode cache depending on the active context renderer type (DX12, Vulkan, or Metal).
+* **Native Context Selection:** Use the engine's internal backend graphics abstraction layers to resolve binding variants. At the initialization stage, map material resource lookups directly to the hardware backend wrapper, choosing between platform variants such as `RendererBackend::DirectX12`, `RendererBackend::Vulkan`, or `RendererBackend::Metal`.
+
+## Modular Shader Reader Architecture
+* **Modular Codebase:** Build a custom C++ shader preprocessor and reader module capable of parsing and assembling granular chunks of shader code at runtime or build-time based on the engine's compilation target.
+* **Dynamic Imports:** Support custom `#include` injections, inline macro expansion, or explicit snippet stitching for both HLSL and MSL pipelines independently.
+* **Shared Logic:** Map mathematical structures and data layouts across both languages systematically to guarantee identical data packing, padding rules, and alignment constraints between HLSL cbuffers/StructuredBuffers and MSL structs.
+
+## Hardware Ray Tracing & Mesh Shading Execution
+* **Zero Translation Latency:** Hardware Ray Tracing and Mesh Shading features must never route through intermediate translation layers.
+* **Backend Targeting Strategy:** The engine’s shader compilation module must inspect the active graphics context at startup or build time (e.g., DX12 vs. Vulkan vs. Metal) and load the matching native source block directly (`assets/shaders/hlsl/*` vs. `assets/shaders/msl/*`).
+
+## Core Desktop/Console Features
+* **Advanced Pipeline Parity:** Ensure high-tier modern desktop features are implemented natively in both languages with identical feature parity. Read-write storage textures and atomic operations must be explicitly bound to their platform-specific keywords:
+    * **HLSL (DX12/Vulkan):** `RWTexture2D<float4>`, `InterlockedAdd`, etc.
+    * **MSL (Metal):** `texture2d<float, access::read_write>`, `atomic_uint`, etc.

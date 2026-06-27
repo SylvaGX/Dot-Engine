@@ -4,3 +4,5 @@
 requirements:
   - "spdlog/1.17.0"
   - "glm/1.0.1"
+  - "nlohmann_json/3.11.3"
+  - "json-schema-validator/2.4.0"
