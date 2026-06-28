@@ -23,37 +23,231 @@ Rules:
 - A `*System.h` file must not define types; forward-declare them from the matching `*Types.h`.
 - Never mix categories in a single file.
 
-## Engine runtime vs editor host
-
-**Engine Runtime** (shippable game): EngineCore, Platform, Renderer, GameInput. No Editor.
-
-**Editor** (tool layer): DotEditor — ImGui host, `EditorContext`, panel registry. Built only when `DOT_EDITOR` is ON.
-
-**Application host** owns composition via `ApplicationContext` (`engine`, `gameInput`, and `editor` when `DOT_EDITOR`).
+## Structure
 
 ```text
-GLFW → Platform → EngineContext.events
-                      ↓
-              Application routes
-                 /         \
-          GameInput      Editor (DOT_EDITOR only)
+DotEngine
+    |
+    +-- DotInfrastructure
+    |   |
+    |   +-- DotFilesystem (Virtual filesystem, IO abstraction, hot-reload system)
+    |   |   |
+    |   |   +-- File loading / streaming
+    |   |   +-- Directory watching (hot reload assets)
+    |   |   +-- Path resolution (mount points, virtual paths)
+    |   |   +-- Async file IO system
+    |   |
+    |   +-- DotSerialization (Binary / text / custom formats)
+    |   |   |
+    |   |   +-- Object serialization (scene, assets, ECS snapshot)
+    |   |   +-- Versioning system (schema migration)
+    |   |   +-- Reflection-based serialization
+    |   |   +-- Stream-based serializers
+    |   |
+    |   +-- DotReflection (Runtime type system, metadata, RTTI replacement)
+    |   |   |
+    |   |   +-- Type registration system
+    |   |   +-- Property inspection
+    |   |   +-- Function metadata (editor binding)
+    |   |   +-- Enum / struct introspection
+    |   |
+    |   +-- DotSchema (Validation rules for engine data)
+    |   |   |
+    |   |   +-- Structural validation
+    |   |   +-- Range / constraint checks
+    |   |   +-- Asset validation rules
+    |   |
+    |   +-- DotMath (Core math library)
+    |   |   |
+    |   |   +-- Vector / Matrix / Quaternion types
+    |   |   +-- Transform utilities
+    |   |   +-- SIMD optimizations
+    |   |
+    |   +-- DotMemory (Memory management system)
+    |   |   |
+    |   |   +-- Arena allocators
+    |   |   +-- Pool allocators
+    |   |   +-- Frame allocators
+    |   |   +-- Memory tracking / leak detection
+    |   |
+    |   +-- DotLogging (Debug & runtime logging system)
+    |       |
+    |       +-- Log channels (Engine / Game / Editor)
+    |       +-- Log levels (Info / Warning / Error / Critical)
+    |       +-- Console / file logging
+    |       +-- Assertion system
+    |
+    +-- DotEngineData
+    |   |
+    |   +-- DotAssets (Asset system + import pipeline)
+    |   |   |
+    |   |   +-- Asset database (GUID system)
+    |   |   +-- Import pipeline (converters, processors)
+    |   |   +-- Dependency tracking
+    |   |   +-- Streaming system
+    |   |   |
+    |   |   +-- Asset types
+    |   |       |
+    |   |       +-- Shader source files (.hlsl, .msl, .glsl)
+    |   |       +-- Texture source files (.ktx, .dds, .png, .jpg)
+    |   |       +-- Mesh files (.fbx, .gltf, .obj)
+    |   |       +-- Audio files (.wav, .mp3, .ogg)
+    |   |       +-- Material definitions (.mat)
+    |   |       +-- Scene files (.scene)
+    |   |       +-- Animation files (.anim)
+    |   |       +-- Script files (.lua, .cs, .js)
+    |   |
+    |   +-- DotConfig ("I configure the engine itself")
+    |   |   |
+    |   |   +-- Engine settings (graphics, physics, audio)
+    |   |   +-- Project settings
+    |   |   +-- Feature toggles
+    |   |   +-- Platform profiles
+    |   |
+    |   +-- DotScene (World representation, hierarchy, entities)
+    |   |   |
+    |   |   +-- Scene graph / hierarchy system
+    |   |   +-- Prefab system
+    |   |   +-- Scene serialization
+    |   |
+    |   +-- DotECS (DATA ONLY LAYER)
+    |   |   |
+    |   |   +-- ECS Storage (Archetypes / SoA tables)
+    |   |   +-- Component definitions (pure data)
+    |   |   +-- Entity registry
+    |   |   +-- Query system (archetype filtering)
+    |   |
+    |   +-- DotPhysicsData
+    |   |   |
+    |   |   +-- Collision shapes
+    |   |   +-- Rigid body definitions
+    |   |   +-- Physics materials
+    |   |
+    |   +-- DotAnimationData
+    |       |
+    |       +-- Skeletons / rigs
+    |       +-- Animation clips
+    |       +-- Blend trees
+    |
+    +-- DotRuntime
+    |   |
+    |   +-- DotGraphics (RHI - Rendering Hardware Interface)
+    |   |   |
+    |   |   +-- Vulkan backend
+    |   |   +-- DirectX12 backend
+    |   |   +-- Metal backend
+    |   |
+    |   +-- DotRenderer
+    |   |   |
+    |   |   +-- Frame graph
+    |   |   +-- Scene rendering
+    |   |   +-- Culling / batching
+    |   |   +-- Lighting / post-processing
+    |   |
+    |   +-- DotPhysics (Runtime simulation)
+    |   |   |
+    |   |   +-- Rigid body simulation
+    |   |   +-- Collision detection
+    |   |   +-- Constraint solver
+    |   |
+    |   +-- DotAudio
+    |   |   |
+    |   |   +-- Spatial audio
+    |   |   +-- Mixing / buses
+    |   |   +-- DSP effects
+    |   |
+    |   +-- DotInput
+    |   |   |
+    |   |   +-- Keyboard / mouse / controller input
+    |   |   +-- Input mapping system
+    |   |   +-- Action bindings
+    |   |
+    |   +-- DotNetworking
+    |   |   |
+    |   |   +-- Client/server model
+    |   |   +-- RPC system
+    |   |   +-- Replication system
+    |   |
+    |   +-- DotScripting (Runtime scripting system)
+    |   |   |
+    |   |   +-- Lua / C# / custom VM integration
+    |   |   +-- Script lifecycle (init / update / destroy)
+    |   |   +-- Binding to ECS + engine API
+    |   |
+    |   +-- DotUI (Immediate + retained UI system)
+    |   |   |
+    |   |   +-- Runtime UI rendering system
+    |   |   +-- Widgets (buttons, panels, text, images)
+    |   |   +-- Layout system
+    |   |   +-- Input-driven UI interaction
+    |   |
+    |   +-- Runtime Core
+    |       |
+    |       +-- Application Loop
+    |       +-- ECS Execution
+    |       +-- Frame orchestration
+    |       +-- Job system (multithreading)
+    |
+    +-- DotEditor
+    |   |
+    |   +-- Scene editing framework
+    |   +-- Inspector system (reflection-based UI)
+    |   +-- Scene Editor (gizmos, transforms, hierarchy)
+    |   +-- Asset Browser backend
+    |   |   |
+    |   |   +-- Asset database queries (GUID → asset)
+    |   |   +-- Dependency graph lookup
+    |   |   +-- Import status (dirty, missing, cached)
+    |   |   +-- Thumbnail generation requests
+    |   |   +-- Filtering / search indexing
+    |   |   +-- Virtual folder mapping (if you have one)
+    |   |   +-- Asset metadata handling
+    |   |
+    |   +-- Undo/redo
+    |   +-- Debug Tools (profiler, frame debugger)
+    |   +-- Editor UI framework (built with ImGui)
+    |   +-- Play Mode (runs DotRuntime inside editor)
+    |   
+    +-- DotTools
+    |    |
+    |    +-- DotBuild
+    |    +-- DotAssetCooker
+    |    +-- DotShaderCompiler
+    |
+    +-- DotApps
+        |
+        +-- Games (final shipped builds)
+        |
+        +-- Tools Applications
+        |   |
+        |   +-- Asset Compiler / Cooker
+        |   +-- Shader Compiler
+        |   +-- Scene Converter tools
+        |
+        +-- DotEditorApp
+        |   |
+        |   +-- Startup
+        |   +-- Window creation
+        |   +-- Editor UI
+        |   |   |
+        |   |   +-- Asset Browser UI
+        |   |   +-- Scene Editor UI
+        |   |   +-- Inspector UI
+        |   |   +-- Debug Tools UI
+        |   |   +-- Play Mode UI
+        |   |   +-- Profiler UI
+        |   |   +-- Frame Debugger UI
+        |   |   +-- Console UI
+        |   |   +-- Editor UI (ImGui)
+        |   |
+        |   +-- Loading DotEditor layer
+        |   +-- Runtime loop wiring
+        |
+        +-- Sandbox Applications
+            |
+            +-- Experimental builds
+            +-- Feature prototyping
 ```
-
-## Module terminology
-
-- **`EngineContext`** — runtime only (`graphics`, `window`, `events`, `running`). Lives in **EngineCore**.
-- **`ApplicationContext`** — application host owns `engine`, `gameInput`, and `editor` (`DOT_EDITOR`). Stored on GLFW user pointer.
-- **`Event` / `EventSystem`** — generic OS/window events in EngineCore. Platform pushes via `ApplicationContext`; consumers read from `engine.events`.
-- **`DotEditor`** — editor tool layer. `EditorContext`, `EditorSystem`, `EditorEventSystem::ProcessEvents`.
-- **`EditorPanelSystem`** — `RegisterPanel` only. Panel implementations live in client apps (Sandbox).
-- **`UI`** — reserved for future in-game interfaces (not editor).
-
-## Input boundaries
-
-- **Platform** stores `ApplicationContext*` on the GLFW window and pushes `Event` to `app.engine.events`. Links `DotApplication` for the host type; never links DotEditor.
-- **`GameInput`** — consumes `EventQueue` via `ProcessEvents`. Shipped in game runtime.
-- **`Editor::ProcessEvents`** — consumes same queue for panel dispatch (`DOT_EDITOR` only).
-- Application calls `GameInput::ProcessEvents` then `Editor::ProcessEvents`, then `Events::Clear`.
 
 ## Pure DOD principles
 
