@@ -1,7 +1,7 @@
 #include "ShaderSystem.h"
 #include "RenderTypes.h"
 #include "Log.h"
-#include "CoreTypes.h"
+#include "CoreMacros.h"
 
 #include <glad/glad.h>
 #include <vector>

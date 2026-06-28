@@ -1,16 +1,14 @@
 #pragma once
 
 // --- EngineCore ---
-#include "CoreTypes.h"
+#include "CoreMacros.h"
 #include "Log.h"
-#include "Input.h"
 #include "KeyCodes.h"
 #include "MouseButtonCodes.h"
-#include "Layer.h"
-#include "LayerStack.h"
 #include "EngineContext.h"
 #include "Events/EventTypes.h"
 #include "Events/EventQueue.h"
+#include "Events/EventSystem.h"
 
 // --- Renderer ---
 #include "RenderTypes.h"
@@ -18,11 +16,21 @@
 #include "ShaderSystem.h"
 #include "RenderSystem.h"
 
-// --- Application ---
-#include "Application.h"
+// --- GameInput ---
+#include "GameInputTypes.h"
+#include "GameInputSystem.h"
 
-// --- UI ---
-#include "ImGuiLayer.h"
+#ifdef DOT_EDITOR
+    // --- Editor ---
+    #include "EditorContext.h"
+    #include "EditorSystem.h"
+    #include "EditorPanelSystem.h"
+    #include "EditorEventSystem.h"
+#endif
+
+// --- Application ---
+#include "ApplicationContext.h"
+#include "Application.h"
 
 // --- Entry Point ---
 #include "EntryPoint.h"

@@ -1,7 +1,7 @@
 #include "BufferSystem.h"
 #include "RenderTypes.h"
 #include "Log.h"
-#include "CoreTypes.h"
+#include "CoreMacros.h"
 
 #include <glad/glad.h>
 
@@ -52,14 +52,14 @@ namespace DotEngine::Renderer {
         glBindBuffer(GL_ARRAY_BUFFER, vb.rendererID);
 
         uint32_t index = 0;
-        for (const auto& element : vb.layout) {
+        for (const auto& element : vb.layout.elements) {
             glEnableVertexAttribArray(index);
             glVertexAttribPointer(
                 index,
-                static_cast<int>(element.GetComponentCount()),
+                static_cast<int>(element.componentCount),
                 ToGLBaseType(element.Type),
                 element.Normalized ? GL_TRUE : GL_FALSE,
-                static_cast<int>(vb.layout.GetStride()),
+                static_cast<int>(vb.layout.stride),
                 reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset))
             );
             index++;

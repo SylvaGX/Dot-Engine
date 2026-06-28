@@ -3,11 +3,10 @@
 namespace DotEngine {
 
     struct EngineContext;
-    struct WindowProps;
+    struct ApplicationContext;
 
-    // Implementations provided by the linked Platform module (Windows/Mac)
     namespace Platform {
-        void Init(EngineContext& ctx, const WindowProps& props);
+        void Init(ApplicationContext& app);
         void PollEvents(EngineContext& ctx);
         void Present(EngineContext& ctx);
         void Shutdown(EngineContext& ctx);

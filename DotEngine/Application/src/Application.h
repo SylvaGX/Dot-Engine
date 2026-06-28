@@ -1,37 +1,26 @@
 #pragma once
 
-#include "CoreTypes.h"
-#include "EngineContext.h"
-#include "Window.h"
-
-#include <string>
+#include "CoreMacros.h"
+#include "ApplicationContext.h"
+#include "WindowTypes.h"
 
 namespace DotEngine {
 
     class DOTENGINE_API Application {
     public:
-        explicit Application(const WindowProps& props = WindowProps());
+        explicit Application(WindowData window = WindowData());
         virtual ~Application();
 
         void Run();
 
-        void PushLayer(Layer* layer);
-        void PushOverlay(Layer* overlay);
-        [[nodiscard]] Layer* GetLayer(const std::string& name) const;
+    protected:
+#ifdef DOT_EDITOR
+        virtual void RegisterEditorPanels(EngineContext& ctx, EditorContext& editor) {}
+#endif
 
-        [[nodiscard]] EngineContext&       GetContext()       { return m_Ctx; }
-        [[nodiscard]] const EngineContext& GetContext() const { return m_Ctx; }
-
-        static Application& Get() { return *s_Instance; }
-
-    private:
-        EngineContext m_Ctx;
-        WindowProps   m_Props;
-
-        static Application* s_Instance;
+        ApplicationContext m_App;
     };
 
-    // To be defined in CLIENT
     Application* createApplication();
 
 }

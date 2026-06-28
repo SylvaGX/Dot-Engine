@@ -1,8 +1,8 @@
 #include "OpenGLContext.h"
 
-#include "GraphicsContext.h"
+#include "GraphicsTypes.h"
 #include "Log.h"
-#include "CoreTypes.h"
+#include "CoreMacros.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

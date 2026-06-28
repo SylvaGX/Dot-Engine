@@ -1,17 +1,14 @@
-#include "PlatformInterface.h"
+#include "Platform.h"
+#include "ApplicationContext.h"
 #include "EngineContext.h"
-#include "Window.h"
+#include "Events/EventSystem.h"
 #include "Events/EventTypes.h"
 #include "Log.h"
-#include "CoreTypes.h"
+#include "CoreMacros.h"
 
 #include "OpenGLContext.h"
 
 #include <GLFW/glfw3.h>
-
-namespace DotEngine::Platform {
-    void RegisterWindowForInput(GLFWwindow* window);
-}
 
 namespace DotEngine {
 
@@ -19,89 +16,129 @@ namespace DotEngine {
         DOTENGINE_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
     }
 
-    void Platform::Init(EngineContext& ctx, const WindowProps& props) {
-        ctx.window.title  = props.title;
-        ctx.window.width  = props.width;
-        ctx.window.height = props.height;
+    static ApplicationContext* GetApp(GLFWwindow* window) {
+        return static_cast<ApplicationContext*>(glfwGetWindowUserPointer(window));
+    }
 
-        DOTENGINE_CORE_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
+    void Platform::Init(ApplicationContext& app) {
+        EngineContext& ctx = app.engine;
+
+        DOTENGINE_CORE_INFO("Creating window {0} ({1}, {2})", ctx.window.title, ctx.window.width, ctx.window.height);
 
         int success = glfwInit();
         DOTENGINE_CORE_ASSERT(success, "Could not initialize GLFW!");
         glfwSetErrorCallback(GLFWErrorCallback);
 
-        GLFWwindow* window = glfwCreateWindow(
-            static_cast<int>(props.width),
-            static_cast<int>(props.height),
-            props.title.c_str(), nullptr, nullptr
+        GLFWwindow* glfwWindow = glfwCreateWindow(
+            static_cast<int>(ctx.window.width),
+            static_cast<int>(ctx.window.height),
+            ctx.window.title.c_str(), nullptr, nullptr
         );
-        DOTENGINE_CORE_ASSERT(window, "Failed to create GLFW window!");
 
-        ctx.window.nativeHandle = window;
-        glfwSetWindowUserPointer(window, &ctx);
-        Platform::RegisterWindowForInput(window);
+        if (!glfwWindow) {
+            glfwTerminate();
+            DOTENGINE_CORE_CRITICAL("Could not create GLFW window!");
+            return;
+        }
 
-        // Initialize OpenGL backend
-        Backend::OpenGL::Init(ctx.graphics, window);
+        if (ctx.window.maximized)
+            glfwMaximizeWindow(glfwWindow);
+        else
+            glfwSetWindowPos(glfwWindow, ctx.window.x_position, ctx.window.y_position);
+
+        ctx.window.nativeHandle = glfwWindow;
+        glfwSetWindowUserPointer(glfwWindow, &app);
+
+        Backend::OpenGL::Init(ctx.graphics, glfwWindow);
         glfwSwapInterval(ctx.window.vsync ? 1 : 0);
 
-        // --- GLFW event callbacks ---
+        glfwSetWindowPosCallback(glfwWindow, [](GLFWwindow* w, int x, int y) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
 
-        glfwSetWindowSizeCallback(window, [](GLFWwindow* w, int width, int height) {
-            auto& c       = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
-            c.window.width  = static_cast<uint32_t>(width);
-            c.window.height = static_cast<uint32_t>(height);
+            application->engine.window.x_position = x;
+            application->engine.window.y_position = y;
+
+            Event e;
+            e.type        = EventType::WindowMoved;
+            e.windowPos.x = x;
+            e.windowPos.y = y;
+            Events::Push(application->engine, e);
+        });
+
+        glfwSetWindowSizeCallback(glfwWindow, [](GLFWwindow* w, int width, int height) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
+            application->engine.window.width  = static_cast<uint32_t>(width);
+            application->engine.window.height = static_cast<uint32_t>(height);
+
             Event e;
             e.type         = EventType::WindowResize;
             e.resize.width  = static_cast<uint32_t>(width);
             e.resize.height = static_cast<uint32_t>(height);
-            c.events.push_back(e);
+            Events::Push(application->engine, e);
         });
 
-        glfwSetWindowCloseCallback(window, [](GLFWwindow* w) {
-            auto& c   = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
-            c.running = false;
+        glfwSetWindowCloseCallback(glfwWindow, [](GLFWwindow* w) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
+            application->engine.running = false;
+
             Event e;
-            e.type    = EventType::WindowClose;
-            c.events.push_back(e);
+            e.type = EventType::WindowClose;
+            Events::Push(application->engine, e);
         });
 
-        glfwSetKeyCallback(window, [](GLFWwindow* w, int key, int /*scancode*/, int action, int /*mods*/) {
-            auto& c = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
+        glfwSetKeyCallback(glfwWindow, [](GLFWwindow* w, int key, int /*scancode*/, int action, int /*mods*/) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
             Event e;
             switch (action) {
                 case GLFW_PRESS:
                     e.type           = EventType::KeyPressed;
                     e.key.keyCode    = key;
                     e.key.repeatCount = 0;
-                    c.events.push_back(e);
+                    Events::Push(application->engine, e);
                     break;
                 case GLFW_RELEASE:
                     e.type           = EventType::KeyReleased;
                     e.key.keyCode    = key;
                     e.key.repeatCount = 0;
-                    c.events.push_back(e);
+                    Events::Push(application->engine, e);
                     break;
                 case GLFW_REPEAT:
                     e.type           = EventType::KeyPressed;
                     e.key.keyCode    = key;
                     e.key.repeatCount = 1;
-                    c.events.push_back(e);
+                    Events::Push(application->engine, e);
                     break;
             }
         });
 
-        glfwSetCharCallback(window, [](GLFWwindow* w, unsigned int codepoint) {
-            auto& c            = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
+        glfwSetCharCallback(glfwWindow, [](GLFWwindow* w, unsigned int codepoint) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
             Event e;
             e.type             = EventType::KeyTyped;
             e.key.keyCode      = static_cast<int>(codepoint);
             e.key.repeatCount  = 0;
-            c.events.push_back(e);
+            Events::Push(application->engine, e);
         });
 
-        glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int /*mods*/) {
-            auto& c       = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
+        glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow* w, int button, int action, int /*mods*/) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
             Event e;
             e.mouseButton.button = button;
             if (action == GLFW_PRESS)
@@ -110,25 +147,31 @@ namespace DotEngine {
                 e.type = EventType::MouseButtonReleased;
             else
                 return;
-            c.events.push_back(e);
+            Events::Push(application->engine, e);
         });
 
-        glfwSetScrollCallback(window, [](GLFWwindow* w, double xOffset, double yOffset) {
-            auto& c              = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
+        glfwSetScrollCallback(glfwWindow, [](GLFWwindow* w, double xOffset, double yOffset) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
             Event e;
             e.type               = EventType::MouseScrolled;
             e.mouseScroll.xOffset = static_cast<float>(xOffset);
             e.mouseScroll.yOffset = static_cast<float>(yOffset);
-            c.events.push_back(e);
+            Events::Push(application->engine, e);
         });
 
-        glfwSetCursorPosCallback(window, [](GLFWwindow* w, double xPos, double yPos) {
-            auto& c         = *static_cast<EngineContext*>(glfwGetWindowUserPointer(w));
+        glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow* w, double xPos, double yPos) {
+            auto* application = GetApp(w);
+            if (!application)
+                return;
+
             Event e;
             e.type          = EventType::MouseMoved;
             e.mouseMove.x   = static_cast<float>(xPos);
             e.mouseMove.y   = static_cast<float>(yPos);
-            c.events.push_back(e);
+            Events::Push(application->engine, e);
         });
     }
 

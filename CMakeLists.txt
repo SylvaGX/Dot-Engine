@@ -79,9 +79,18 @@ add_subdirectory(DotEngine/vendor/imgui_cmake)
 
 # ---------- Engine modules ----------
 
+option(DOT_EDITOR "Build with editor layer" ON)
+
 add_subdirectory(DotEngine/Data)
 add_subdirectory(DotEngine/EngineCore)
 add_subdirectory(DotEngine/Renderer)
+add_subdirectory(DotEngine/GameInput)
+
+if(DOT_EDITOR)
+    add_subdirectory(DotEngine/Editor)
+endif()
+
+add_subdirectory(DotEngine/Application)
 
 if(WIN32 OR (UNIX AND NOT APPLE))
     add_subdirectory(DotEngine/Backend/OpenGL)
@@ -90,9 +99,6 @@ elseif(APPLE)
     add_subdirectory(DotEngine/Backend/Metal)
     add_subdirectory(DotEngine/Platform/Mac)
 endif()
-
-add_subdirectory(DotEngine/UI)
-add_subdirectory(DotEngine/Application)
 
 # ---------- Sandbox ----------
 

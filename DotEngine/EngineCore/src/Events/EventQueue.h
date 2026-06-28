@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EventTypes.h"
+
 #include <vector>
 
 namespace DotEngine {

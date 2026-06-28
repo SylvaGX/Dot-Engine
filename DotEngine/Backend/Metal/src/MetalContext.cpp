@@ -1,8 +1,8 @@
 #include "MetalContext.h"
 
-#include "GraphicsContext.h"
+#include "GraphicsTypes.h"
 #include "Log.h"
-#include "CoreTypes.h"
+#include "CoreMacros.h"
 
 #include <GLFW/glfw3.h>
 
@@ -73,9 +73,5 @@ namespace DotEngine::Backend::Metal {
             static_cast<MTL::Device*>(ctx.metal.device)->release();
         ctx.metal = {};
     }
-
-    void* GetMetalLayer(const GraphicsContext& ctx)           { return ctx.metal.metalLayer; }
-    void* GetCommandQueue(const GraphicsContext& ctx)         { return ctx.metal.commandQueue; }
-    void* GetRenderPassDescriptor(const GraphicsContext& ctx) { return ctx.metal.renderPassDescriptor; }
 
 }

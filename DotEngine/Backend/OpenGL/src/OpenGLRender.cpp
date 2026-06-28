@@ -1,6 +1,6 @@
 #include "RenderSystem.h"
 #include "EngineContext.h"
-#include "GraphicsContext.h"
+#include "GraphicsTypes.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -30,7 +30,7 @@ namespace DotEngine::Renderer {
         glfwSwapBuffers(window);
     }
 
-    void Shutdown(EngineContext& ctx) {
+    void Shutdown(EngineContext& /*ctx*/) {
         // No explicit cleanup needed for OpenGL state
     }
 

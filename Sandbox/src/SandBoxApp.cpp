@@ -1,115 +1,49 @@
 #include <DotEngine.h>
 
-#include "imgui.h"
-#include "imgui_internal.h"
-
-class ExampleLayer : public DotEngine::Layer {
-public:
-    ExampleLayer() : Layer("Example") {}
-
-    void OnUpdate() override {
-        if (m_DockingEnabled) {
-            if (DotEngine::Input::IsKeyPressed(DOTENGINE_KEY_TAB))
-                DOTENGINE_TRACE("Tab key is pressed (poll)!");
-        }
-    }
-
-    void OnImGuiRender() override {
-        if (m_DockingEnabled) {
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
-            if (ImGui::Begin("Test", &m_DockingEnabled, window_flags)) {
-                ImGui::Text("Hello World");
-            }
-            ImGui::End();
-        }
-    }
-
-    void OnEvent(DotEngine::Event& event) override {
-        if (m_DockingEnabled) {
-            if (event.type == DotEngine::EventType::KeyPressed) {
-                DOTENGINE_TRACE("{0}", static_cast<char>(event.key.keyCode));
-            }
-        }
-    }
-
-    void OpenWindow() { m_DockingEnabled = true; }
-
-private:
-    bool m_DockingEnabled = true;
-};
-
-class DockSpaceLayer : public DotEngine::Layer {
-public:
-    DockSpaceLayer() : Layer("DockSpace") {}
-
-    void OnImGuiRender() override {
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse
-                     |  ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-        window_flags |= ImGuiWindowFlags_NoBackground;
-
-        dockspace_flags |= ImGuiDockNodeFlags_PassthruCentralNode;
-        dockspace_flags |= ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-        ImGui::Begin("DotEngine DockSpace", nullptr, window_flags);
-        ImGui::PopStyleVar();
-        ImGui::PopStyleVar(2);
-
-        if (const ImGuiIO& io = ImGui::GetIO(); io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-            const ImGuiID dockspace_id = ImGui::GetID("DotEngineDockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        }
-
-        if (ImGui::BeginMenuBar()) {
-            if (ImGui::MenuItem("Test Window")) {
-                const auto& app = DotEngine::Application::Get();
-                if (auto* example = dynamic_cast<ExampleLayer*>(app.GetLayer("Example")))
-                    example->OpenWindow();
-            }
-
-            if (ImGui::BeginMenu("Options")) {
-                if (ImGui::MenuItem("Flag: NoSplit",    "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))
-                    dockspace_flags ^= ImGuiDockNodeFlags_NoSplit;
-                if (ImGui::MenuItem("Flag: NoResize",   "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))
-                    dockspace_flags ^= ImGuiDockNodeFlags_NoResize;
-                if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "",
-                    (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))
-                    dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode;
-                if (ImGui::MenuItem("Flag: AutoHideTabBar", "",
-                    (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))
-                    dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar;
-                if (ImGui::MenuItem("Flag: PassthruCentralNode", "",
-                    (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0))
-                    dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode;
-                ImGui::Separator();
-                if (ImGui::MenuItem("Close")) {}
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenuBar();
-        }
-
-        ImGui::End();
-    }
-};
+#include "editor/SandboxEditorTypes.h"
+#include "editor/ExamplePanel.h"
+#include "editor/DockSpacePanel.h"
+#include "editor/DemoPanel.h"
 
 class SandBox : public DotEngine::Application {
 public:
-    SandBox() {
-        PushLayer(new DockSpaceLayer());
-        PushLayer(new ExampleLayer());
-    }
+    SandBox() = default;
     ~SandBox() override = default;
+
+protected:
+    void RegisterEditorPanels(DotEngine::EngineContext& ctx, DotEngine::EditorContext& editor) override {
+
+        DotEngine::Editor::RegisterPanel(editor, {
+            .onPanels = +[](DotEngine::EngineContext& c, DotEngine::EditorContext& /*editor*/, void* data) {
+                DockSpacePanel_Draw(c, *static_cast<Sandbox::SandboxEditorState*>(data));
+            },
+            .userData = &m_Editor
+        });
+
+        DotEngine::Editor::RegisterPanel(editor, {
+            .onUpdate = +[](DotEngine::EngineContext& c, DotEngine::EditorContext& /*editor*/, void* data) {
+                ExamplePanel_Update(c, *static_cast<Sandbox::ExamplePanelState*>(data));
+            },
+            .onPanels = +[](DotEngine::EngineContext& c, DotEngine::EditorContext& /*editor*/, void* data) {
+                ExamplePanel_Draw(c, *static_cast<Sandbox::ExamplePanelState*>(data));
+            },
+            .onEvent = +[](DotEngine::EngineContext& c, DotEngine::EditorContext& /*editor*/, DotEngine::Event& e, void* data) {
+                ExamplePanel_OnEvent(c, e, *static_cast<Sandbox::ExamplePanelState*>(data));
+            },
+            .userData = &m_Editor.example
+        });
+
+        DotEngine::Editor::RegisterPanel( editor, {
+            .onPanels = +[](DotEngine::EngineContext& c, DotEngine::EditorContext& /*editor*/, void* data)
+            {
+                DemoPanel_Draw(c, *static_cast<Sandbox::DemoPanelState*>(data));
+            },
+            .userData = &m_Editor.demo
+        });
+    }
+
+private:
+    Sandbox::SandboxEditorState m_Editor{};
 };
 
 DotEngine::Application* DotEngine::createApplication() {

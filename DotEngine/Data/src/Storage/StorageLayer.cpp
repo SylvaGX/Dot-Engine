@@ -78,6 +78,11 @@ namespace DotData::Paths {
         if (appdata)
             return std::filesystem::path(appdata) / "DotEngine";
         return std::filesystem::temp_directory_path() / "DotEngine";
+#elif defined(__APPLE__)
+        const char* home = std::getenv("HOME");
+        if (home)
+            return std::filesystem::path(home) / "Library" / "Application Support" / "DotEngine";
+        return std::filesystem::temp_directory_path() / "DotEngine";
 #else
         const char* home = std::getenv("HOME");
         if (home)

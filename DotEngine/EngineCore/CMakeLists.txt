@@ -2,22 +2,19 @@ cmake_minimum_required(VERSION 3.16)
 project(DotEngineCore LANGUAGES CXX)
 
 set(ENGINECORE_SOURCES
-    src/CoreTypes.h
+    src/CoreMacros.h
     src/Log.h
     src/Log.cpp
-    src/Input.h
     src/KeyCodes.h
     src/MouseButtonCodes.h
-    src/Window.h
-    src/GraphicsContext.h
+    src/WindowTypes.h
+    src/GraphicsTypes.h
     src/EngineContext.h
-    src/PlatformInterface.h
-    src/Layer.h
-    src/Layer.cpp
-    src/LayerStack.h
-    src/LayerStack.cpp
+    src/Platform.h
     src/Events/EventTypes.h
     src/Events/EventQueue.h
+    src/Events/EventSystem.h
+    src/Events/EventSystem.cpp
 )
 
 add_library(DotEngineCore STATIC ${ENGINECORE_SOURCES})

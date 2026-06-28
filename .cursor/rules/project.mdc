@@ -7,3 +7,64 @@ globs: always
 
 - When creating plans if a lib is needed, try to check if it is in the conan repo. If it is, say it with a warning to add it, since the user has the conan extension installed. If it doesn't, ask the user to install it under the vendor folder.
 - Ensures that when reading files, it avoids the TOCTOU vulnerability. So it needs to do atomic operations. This could mean opening a file in appended mode, or reading and writing in a single operation. And then validating the file contents, so we know it is a trusted file.
+
+## File naming convention (DOD C++)
+
+Every header must fit exactly one of these five categories:
+
+- `*Types.h` — data only: structs, enums, POD handles. No methods. Namespace = module root (`DotEngine`, `DotData`).
+- `*System.h` / `*System.cpp` — free functions that operate on types. Namespace must be `DotEngine::<FileStem>` (e.g. `BufferSystem.h` → `namespace DotEngine::Renderer`).
+- `*Context.h` — one aggregate state struct. File name must equal type name. No other types.
+- `*Macros.h` — preprocessor defines only. No types, no namespaces.
+- `<ClassName>.h` / `<ClassName>.cpp` — one class per file, file name equals class name.
+
+Rules:
+- A `*Types.h` file may group multiple related POD structs (e.g. `RenderTypes.h`, `WindowTypes.h`).
+- A `*System.h` file must not define types; forward-declare them from the matching `*Types.h`.
+- Never mix categories in a single file.
+
+## Engine runtime vs editor host
+
+**Engine Runtime** (shippable game): EngineCore, Platform, Renderer, GameInput. No Editor.
+
+**Editor** (tool layer): DotEditor — ImGui host, `EditorContext`, panel registry. Built only when `DOT_EDITOR` is ON.
+
+**Application host** owns composition via `ApplicationContext` (`engine`, `gameInput`, and `editor` when `DOT_EDITOR`).
+
+```text
+GLFW → Platform → EngineContext.events
+                      ↓
+              Application routes
+                 /         \
+          GameInput      Editor (DOT_EDITOR only)
+```
+
+## Module terminology
+
+- **`EngineContext`** — runtime only (`graphics`, `window`, `events`, `running`). Lives in **EngineCore**.
+- **`ApplicationContext`** — application host owns `engine`, `gameInput`, and `editor` (`DOT_EDITOR`). Stored on GLFW user pointer.
+- **`Event` / `EventSystem`** — generic OS/window events in EngineCore. Platform pushes via `ApplicationContext`; consumers read from `engine.events`.
+- **`DotEditor`** — editor tool layer. `EditorContext`, `EditorSystem`, `EditorEventSystem::ProcessEvents`.
+- **`EditorPanelSystem`** — `RegisterPanel` only. Panel implementations live in client apps (Sandbox).
+- **`UI`** — reserved for future in-game interfaces (not editor).
+
+## Input boundaries
+
+- **Platform** stores `ApplicationContext*` on the GLFW window and pushes `Event` to `app.engine.events`. Links `DotApplication` for the host type; never links DotEditor.
+- **`GameInput`** — consumes `EventQueue` via `ProcessEvents`. Shipped in game runtime.
+- **`Editor::ProcessEvents`** — consumes same queue for panel dispatch (`DOT_EDITOR` only).
+- Application calls `GameInput::ProcessEvents` then `Editor::ProcessEvents`, then `Events::Clear`.
+
+## Pure DOD principles
+
+Default contract (unless a plan explicitly opts out):
+
+- Data in `*Types.h` / context structs — POD only, no methods, no virtuals, no I/O
+- Behavior in `*System.h` — free functions; pass explicit slices (`EngineContext&`, `EditorContext&`, `GameInputState&`)
+- No thin getters that only return a field — read `ctx.field` directly
+- No hidden module globals — state on context structs; Application wires slices
+- Backend systems write context slices at init; consumers read fields directly
+- No virtual dispatch in the frame loop
+- SoA for 100+ homogeneous hot-path items; singleton subsystems stay AoS
+
+Architecture PRs must include a **DOD compliance** note: POD vs systems added, opt-outs, and runtime vs editor layer touched.

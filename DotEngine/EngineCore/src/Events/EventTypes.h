@@ -6,7 +6,7 @@ namespace DotEngine {
 
     enum class EventType {
         None = 0,
-        WindowClose, WindowResize,
+        WindowClose, WindowResize, WindowMoved,
         KeyPressed, KeyReleased, KeyTyped,
         MouseButtonPressed, MouseButtonReleased,
         MouseMoved, MouseScrolled
@@ -17,8 +17,9 @@ namespace DotEngine {
         bool      handled = false;
 
         union {
-            struct { int      keyCode; int repeatCount; } key;
-            struct { float    x, y;                     } mouseMove;
+            struct { int      keyCode; int repeatCount;  } key;
+            struct { int      x, y;                      } windowPos;
+            struct { float    x, y;                      } mouseMove;
             struct { float    xOffset, yOffset;          } mouseScroll;
             struct { int      button;                    } mouseButton;
             struct { uint32_t width, height;             } resize;

@@ -3,7 +3,6 @@ project(DotPlatformMac LANGUAGES CXX)
 
 set(PLATFORM_MAC_SOURCES
     src/MacWindow.cpp
-    src/MacInput.cpp
 )
 
 add_library(DotPlatformMac STATIC ${PLATFORM_MAC_SOURCES})
@@ -14,7 +13,8 @@ target_include_directories(DotPlatformMac PUBLIC
 
 target_link_libraries(DotPlatformMac PUBLIC
     DotEngineCore
-    DotBackendMetal    # provides Renderer:: and Backend::Metal:: implementations
+    DotBackendMetal
+    DotApplication
 )
 
 target_compile_features(DotPlatformMac PUBLIC cxx_std_23)

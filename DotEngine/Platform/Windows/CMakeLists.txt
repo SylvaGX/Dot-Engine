@@ -3,7 +3,6 @@ project(DotPlatformWindows LANGUAGES CXX)
 
 set(PLATFORM_WIN_SOURCES
     src/WindowsWindow.cpp
-    src/WindowsInput.cpp
 )
 
 add_library(DotPlatformWindows STATIC ${PLATFORM_WIN_SOURCES})
@@ -14,7 +13,8 @@ target_include_directories(DotPlatformWindows PUBLIC
 
 target_link_libraries(DotPlatformWindows PUBLIC
     DotEngineCore
-    DotBackendOpenGL   # provides Renderer:: and Backend::OpenGL:: implementations
+    DotBackendOpenGL
+    DotApplication
 )
 
 target_compile_features(DotPlatformWindows PUBLIC cxx_std_23)
